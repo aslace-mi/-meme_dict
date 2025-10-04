@@ -10,7 +10,7 @@ from telebot.types import (
 )
 from bot_logic import gen_pass
 
-bot = telebot.TeleBot("8238204571:AAHwjUbwx2OS0-yzITqqPqXXVnn3uv-_XCE")
+bot = telebot.TeleBot("")
 WEB_URL = "https://pytelegrambotminiapp.vercel.app"
 
 @bot.message_handler(commands=['start'])
