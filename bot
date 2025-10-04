@@ -1,0 +1,55 @@
+import telebot
+import random
+from telebot.types import ReactionTypeEmoji
+from telebot.types import (
+    ReplyKeyboardMarkup, 
+    KeyboardButton, 
+    WebAppInfo,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton
+)
+from bot_logic import gen_pass
+
+bot = telebot.TeleBot("8238204571:AAHwjUbwx2OS0-yzITqqPqXXVnn3uv-_XCE")
+WEB_URL = "https://pytelegrambotminiapp.vercel.app"
+
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.reply_to(message, "Привет! Я твой Telegram бот. Напиши что-нибудь!")
+
+@bot.message_handler(commands=['hello'])
+def send_hello(message):
+    bot.reply_to(message, "Привет! Как дела?")
+
+@bot.message_handler(commands=['bye'])
+def send_bye(message):
+    bot.reply_to(message, "Пока! Удачи!")
+
+
+@bot.message_handler(func=lambda message: True)
+def echo_all(message):
+    if message.text == "пароль":
+        bot.reply_to(message,gen_pass(10))
+    elif message.text == "смайлик":
+        bot.reply_to(message,  '(⁄ ⁄>⁄ ▽ ⁄<⁄ ⁄)')
+    else:
+        emo = ["\U0001F525", "\U0001F917", "\U0001F60E"]  # or use ["🔥", "🤗", "😎"]
+        bot.set_message_reaction(message.chat.id, message.id, [ReactionTypeEmoji(random.choice(emo))], is_big=False)
+
+@bot.message_reaction_handler(func=lambda message: True)
+def get_reactions(message):
+    bot.reply_to(message, f"You changed the reaction from {[r.emoji for r in message.old_reaction]} to {[r.emoji for r in message.new_reaction]}")
+
+@bot.message_handler(commands=["start_mini"])
+def start(message):
+    reply_keyboard_markup = ReplyKeyboardMarkup(resize_keyboard=True)
+    reply_keyboard_markup.row(KeyboardButton("Start MiniApp", web_app=WebAppInfo(WEB_URL)))
+    inline_keyboard_markup = InlineKeyboardMarkup()
+    inline_keyboard_markup.row(InlineKeyboardButton('Start MiniApp', web_app=WebAppInfo(WEB_URL)))
+    bot.reply_to(message, "Click the bottom inline button to start MiniApp", reply_markup=inline_keyboard_markup)
+    bot.reply_to(message, "Click keyboard button to start MiniApp", reply_markup=reply_keyboard_markup)
+
+@bot.message_handler(content_types=['web_app_data'])
+def web_app(message):
+    bot.reply_to(message, f'Your message is "{message.web_app_data.data}"')
+bot.polling()
